@@ -67,21 +67,25 @@ function SignUp({navigation}: SignUpScreenProps) {
 
     try {
       setLoading(true);
-      const response = await axios.post(`${Config.API_URL}`, {
+      const response = await axios.post(`${Config.API_URL}/user`, {
         email,
         name,
-        password,
+        password, // hash화 일방향 암호화
       });
       Alert.alert('알림', '회원가입에 성공하였습니다');
+      navigation.navigate('SignIn');
     } catch (error) {
       const errorResponse = (error as AxiosError).response;
       console.error(errorResponse);
+      if (errorResponse) {
+        Alert.alert('알림', '이미 가입한 회원입니다');
+      }
     } finally {
       setLoading(false); // 실패하든 성공하든 무조건 실행 되어야하므로
     }
 
     Alert.alert('알림', '회원가입 되었습니다.');
-  }, [email, name, password]);
+  }, [navigation, email, name, password]);
 
   const canGoNext = email && name && password;
   return (

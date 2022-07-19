@@ -10,11 +10,18 @@ import {
   View,
 } from 'react-native';
 import {RootStackParamList} from '../../App';
+import {useAppDispatch} from '../store';
+import userSlice from '../slices/user';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import axios, {AxiosError} from 'axios';
+import Config from 'react-native-config';
 
 type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 function SignIn({navigation}: SignUpScreenProps) {
+  const dispatch = useAppDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const emailRef = useRef<TextInput | null>(null);
   const passwordRef = useRef<TextInput | null>(null);
 
@@ -22,19 +29,41 @@ function SignIn({navigation}: SignUpScreenProps) {
     navigation.navigate('SignUp');
   }, [navigation]);
 
-  const onSubmit = useCallback(() => {
+  const onSubmit = useCallback(async () => {
     if (!email || !email.trim()) {
       Alert.alert('알림창', '이메일을 입력해주세요.');
     }
     if (!password || !password.trim()) {
       Alert.alert('알림창', '비밀번호를 입력해주세요.');
     }
-    if (email.trim() && password.trim()) {
-      Alert.alert('알림창', '로그인 되었습니다.');
+    try {
+      setLoading(true);
+      const response = await axios.post(`${Config.API_URL}/login`, {
+        email,
+        password,
+      });
+      console.log(response.data);
+      Alert.alert('알림', '로그인 되었습니다.');
+      dispatch(
+        userSlice.actions.setUser({
+          name: response.data.data.name,
+          email: response.data.data.email,
+          accessToken: response.data.data.accessToken,
+        }),
+      );
+      await EncryptedStorage.setItem(
+        'refreshToken',
+        response.data.data.refreshToken,
+      );
+    } catch (error) {
+      const errorResponse = (error as AxiosError).response;
+      if (errorResponse) {
+        Alert.alert('알림', errorResponse.data.message);
+      }
+    } finally {
+      setLoading(false);
     }
-    console.log(email.trim());
-    console.log(!password.trim());
-  }, [email, password]);
+  }, [loading, dispatch, email, password]);
 
   const onChangeEmail = useCallback((text: string) => {
     setEmail(text.trim());
