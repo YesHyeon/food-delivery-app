@@ -1,3 +1,4 @@
+import {NavigationContainer} from '@react-navigation/native';
 import * as React from 'react';
 import {Provider} from 'react-redux';
 import AppInner from './AppInner';
@@ -19,7 +20,9 @@ function App() {
   // Provider 밖에선 useSelector 쓰지못함
   return (
     <Provider store={store}>
-      <AppInner />
+      <NavigationContainer>
+        <AppInner />
+      </NavigationContainer>
     </Provider>
   );
 }
