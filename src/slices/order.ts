@@ -1,25 +1,50 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
-const initialState = {
-  name: '',
-  email: '',
-  accessToken: '',
-  money: 0,
+export interface Order {
+  orderId: string;
+  start: {
+    latitude: number;
+    longitude: number;
+  };
+  end: {
+    latitude: number;
+    longitude: number;
+  };
+  price: number;
+}
+interface InitialState {
+  orders: Order[];
+  deliveries: Order[];
+}
+const initialState: InitialState = {
+  orders: [],
+  deliveries: [],
 };
 const orderSlice = createSlice({
-  name: 'user',
+  name: 'order',
   initialState,
   reducers: {
-    setUser(state, action) {
-      state.email = action.payload.email;
-      state.name = action.payload.name;
-      state.accessToken = action.payload.accessToken;
+    addOrder(state, action: PayloadAction<Order>) {
+      state.orders.push(action.payload);
     },
-    setAccessToken(state, action) {
-      state.accessToken = action.payload;
+    acceptOrder(state, action: PayloadAction<string>) {
+      const index = state.orders.findIndex(v => v.orderId === action.payload);
+      if (index > -1) {
+        state.deliveries.push(state.orders[index]);
+        state.orders.splice(index, 1);
+      }
     },
-    setMoney(state, action) {
-      state.money = action.payload;
+    rejectOrder(state, action: PayloadAction<string>) {
+      const index = state.orders.findIndex(v => v.orderId === action.payload);
+      if (index > -1) {
+        state.orders.splice(index, 1);
+      }
+      const delivery = state.deliveries.findIndex(
+        v => v.orderId === action.payload,
+      );
+      if (delivery > -1) {
+        state.deliveries.splice(delivery, 1);
+      }
     },
   },
   extraReducers: builder => {},
