@@ -17,6 +17,7 @@ import axios, {AxiosError} from 'axios';
 import Config from 'react-native-config';
 
 type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
+
 function SignIn({navigation}: SignUpScreenProps) {
   const dispatch = useAppDispatch();
   const [email, setEmail] = useState('');
