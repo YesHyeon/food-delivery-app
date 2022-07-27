@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {View, Text, StyleSheet, Button, Pressable} from 'react-native';
 import {Order} from '../slices/order';
 
@@ -9,6 +9,9 @@ function EachOrder({item}: {item: Order}) {
     setDetail(prev => !prev);
   };
 
+  const onAccept = useCallback(() => {}, []);
+  const onReject = useCallback(() => {}, []);
+
   return (
     <View key={item.orderId}>
       <Pressable onPress={onClick}>
@@ -17,7 +20,12 @@ function EachOrder({item}: {item: Order}) {
           <Text>가격 : {item.price}원</Text>
           {detail ? (
             <View>
-              <Text>hello</Text>
+              <Pressable onPress={onAccept}>
+                <Text>수락</Text>
+              </Pressable>
+              <Pressable onPress={onReject}>
+                <Text>거절</Text>
+              </Pressable>
             </View>
           ) : null}
         </View>
